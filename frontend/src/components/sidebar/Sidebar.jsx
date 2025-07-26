@@ -5,10 +5,12 @@ import LogoutButton from "./LogoutButton";
 
 function Sidebar() {
   return (
-    <div className="border-r border-slate-500 px-4 pb-2 flex flex-col">
+    <div className="border-r border-slate-500 p-4 flex flex-col h-full">
       <Searchbar />
-      <div className="divider mb-0"></div>
-      <Conversations />
+      <div className="divider px-3"></div>
+      <div className="flex-grow overflow-y-auto">
+        <Conversations />
+      </div>
       <LogoutButton />
     </div>
   );
