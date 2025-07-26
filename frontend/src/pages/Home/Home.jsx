@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "../../components/sidebar/Sidebar";
 import MessageContainer from "../../components/messages/MessageContainer";
 import { useMediaQuery } from 'react-responsive';
+import { CiMenuBurger } from "react-icons/ci";
+import useConversation from "../../zustand/useConversation";
 
 function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const sidebarRef = useRef(null);
+  const { selectedConversation } = useConversation();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -35,6 +38,17 @@ function Home() {
     <div className="flex justify-center items-center h-screen">
       <div className="flex h-[95vh] w-[90vw] rounded-lg overflow-hidden bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0 relative">
         
+        {/* Hamburger when NO chat is selected */}
+        {isMobile && !isSidebarOpen && !selectedConversation && (
+          <button 
+            onClick={toggleSidebar} 
+            className="absolute top-5 left-5 z-50 p-2 rounded-md bg-gray-600 bg-opacity-50 hover:bg-opacity-75 transition-all text-white"
+            aria-label="Toggle sidebar"
+          >
+            <CiMenuBurger size={24} />
+          </button>
+        )}
+
         {/* Backdrop for mobile */}
         {isMobile && isSidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-30" onClick={() => setIsSidebarOpen(false)}></div>
