@@ -50,14 +50,36 @@ export const sendMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
     try {
         const { id: usertoChatID } = req.params;
+        const defaultLimit = process.env.VITE_MESSAGES_LIMIT || 50;
+        const { limit = defaultLimit, skip = 0 } = req.query;
         const senderId = req.user._id;
+        
         const conversation = await Conversation.findOne({
             participants: {
                 $all: [senderId, usertoChatID]
             },
-        }).populate("messages");
+        }).populate({
+            path: "messages",
+            options: {
+                sort: { createdAt: -1 },
+                limit: parseInt(limit),
+                skip: parseInt(skip)
+            }
+        });
 
-        return res.status(200).json(conversation?.messages || [])
+        const totalMessages = conversation?.messages.length || 0;
+        const allMessagesCount = await Message.countDocuments({
+            $or: [
+                { senderId, recieverId: usertoChatID },
+                { senderId: usertoChatID, recieverId: senderId }
+            ]
+        });
+
+        return res.status(200).json({
+            messages: (conversation?.messages || []).reverse(),
+            totalMessages: allMessagesCount,
+            hasMore: parseInt(skip) + parseInt(limit) < allMessagesCount
+        })
 
     } catch (error) {
         console.log(`Internal server error: ${error.message}`);
